@@ -5,17 +5,7 @@ import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps
 const geoUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
 const highlightedCountries = [
-  '826', // United Kingdom
-  '470', // Malta
-  '196', // Cyprus
-  '784', // UAE
-  '566', // Nigeria
-  '404', // Kenya
-  '710', // South Africa
-  '124', // Canada
-  '531', // Curacao
-  '833', // Isle of Man
-  '292', // Gibraltar
+  '826', '470', '196', '784', '566', '404', '710', '124', '531', '833', '292'
 ]
 
 const markers = [
@@ -50,12 +40,12 @@ export default function WorldMap() {
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={isHighlighted ? '#0B493A' : '#c5d9d4'}
+                      fill="#c5d9d4"
                       stroke="#ffffff"
                       strokeWidth={0.5}
                       style={{
                         default: { outline: 'none' },
-                        hover: { fill: isHighlighted ? '#0a3d30' : '#c5d9d4', outline: 'none' },
+                        hover: { fill: isHighlighted ? '#0B493A' : '#c5d9d4', outline: 'none', cursor: isHighlighted ? 'pointer' : 'default' },
                         pressed: { outline: 'none' },
                       }}
                     />
@@ -65,7 +55,7 @@ export default function WorldMap() {
             </Geographies>
             {markers.map((marker) => (
               <Marker key={marker.name} coordinates={marker.coordinates}>
-                <circle r={4} fill="#ffffff" stroke="#0B493A" strokeWidth={2} />
+                <circle r={5} fill="#0B493A" stroke="#ffffff" strokeWidth={2} />
                 <title>{marker.name}</title>
               </Marker>
             ))}
