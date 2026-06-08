@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps'
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
@@ -22,7 +23,23 @@ const markers = [
   { name: 'Gibraltar', coordinates: [-5.35, 36.14] },
 ]
 
+const countryNames = {
+  '826': 'United Kingdom',
+  '470': 'Malta',
+  '196': 'Cyprus',
+  '784': 'UAE',
+  '566': 'Nigeria',
+  '404': 'Kenya',
+  '710': 'South Africa',
+  '124': 'Canada',
+  '531': 'Curacao',
+  '833': 'Isle of Man',
+  '292': 'Gibraltar',
+}
+
 export default function WorldMap() {
+  const [tooltip, setTooltip] = useState({ visible: false, name: '', x: 0, y: 0 })
+
   return (
     <section className="py-24" style={{ backgroundColor: '#FFF2E6' }}>
       <div className="max-w-7xl mx-auto px-6">
@@ -30,7 +47,29 @@ export default function WorldMap() {
           <p className="text-sm font-medium tracking-[0.3em] uppercase mb-4" style={{ color: '#0B493A' }}>Where We Operate</p>
           <h2 className="text-4xl md:text-5xl font-bold" style={{ color: '#0B493A' }}>Global Reach</h2>
         </div>
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#e8f0ee' }}>
+        <div className="rounded-2xl overflow-hidden relative" style={{ backgroundColor: '#e8f0ee' }}>
+          {tooltip.visible && (
+            <div
+              style={{
+                position: 'absolute',
+                left: tooltip.x + 12,
+                top: tooltip.y - 28,
+                backgroundColor: '#0B493A',
+                color: 'white',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: '500',
+                letterSpacing: '0.05em',
+                pointerEvents: 'none',
+                zIndex: 10,
+                whiteSpace: 'nowrap',
+                opacity: 0.9,
+              }}
+            >
+              {tooltip.name}
+            </div>
+          )}
           <ComposableMap projection="geoMercator" projectionConfig={{ scale: 140, center: [10, 20] }} height={500}>
             <Geographies geography={geoUrl}>
               {({ geographies }) =>
@@ -43,6 +82,28 @@ export default function WorldMap() {
                       fill="#c5d9d4"
                       stroke="#ffffff"
                       strokeWidth={0.5}
+                      onMouseEnter={(e) => {
+                        if (isHighlighted) {
+                          const rect = e.target.closest('svg').parentElement.getBoundingClientRect()
+                          setTooltip({
+                            visible: true,
+                            name: countryNames[geo.id],
+                            x: e.clientX - rect.left,
+                            y: e.clientY - rect.top,
+                          })
+                        }
+                      }}
+                      onMouseMove={(e) => {
+                        if (isHighlighted) {
+                          const rect = e.target.closest('svg').parentElement.getBoundingClientRect()
+                          setTooltip((prev) => ({
+                            ...prev,
+                            x: e.clientX - rect.left,
+                            y: e.clientY - rect.top,
+                          }))
+                        }
+                      }}
+                      onMouseLeave={() => setTooltip({ visible: false, name: '', x: 0, y: 0 })}
                       style={{
                         default: { outline: 'none' },
                         hover: { fill: isHighlighted ? '#0B493A' : '#c5d9d4', outline: 'none', cursor: isHighlighted ? 'pointer' : 'default' },
@@ -56,7 +117,6 @@ export default function WorldMap() {
             {markers.map((marker) => (
               <Marker key={marker.name} coordinates={marker.coordinates}>
                 <circle r={5} fill="#0B493A" stroke="#ffffff" strokeWidth={2} style={{ pointerEvents: 'none' }} />
-                <title>{marker.name}</title>
               </Marker>
             ))}
           </ComposableMap>
