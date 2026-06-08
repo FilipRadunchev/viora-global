@@ -39,6 +39,7 @@ const markers = [
 
 export default function WorldMap() {
   const [tooltip, setTooltip] = useState({ visible: false, name: '', x: 0, y: 0 })
+  const [hoveredCountry, setHoveredCountry] = useState(null)
 
   const showTooltip = (name, e) => {
     const rect = e.target.closest('svg').parentElement.getBoundingClientRect()
@@ -50,7 +51,10 @@ export default function WorldMap() {
     setTooltip((prev) => ({ ...prev, x: e.clientX - rect.left, y: e.clientY - rect.top }))
   }
 
-  const hideTooltip = () => setTooltip({ visible: false, name: '', x: 0, y: 0 })
+  const hideTooltip = () => {
+    setTooltip({ visible: false, name: '', x: 0, y: 0 })
+    setHoveredCountry(null)
+  }
 
   return (
     <section className="py-24" style={{ backgroundColor: '#FFF2E6' }}>
@@ -85,19 +89,25 @@ export default function WorldMap() {
               {({ geographies }) =>
                 geographies.map((geo) => {
                   const isHighlighted = highlightedCountries.includes(geo.id)
+                  const isHovered = hoveredCountry === geo.id
                   return (
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill="#c5d9d4"
+                      fill={isHighlighted && isHovered ? '#0B493A' : '#c5d9d4'}
                       stroke="#ffffff"
                       strokeWidth={0.5}
-                      onMouseEnter={(e) => { if (isHighlighted) showTooltip(countryNames[geo.id], e) }}
+                      onMouseEnter={(e) => {
+                        if (isHighlighted) {
+                          setHoveredCountry(geo.id)
+                          showTooltip(countryNames[geo.id], e)
+                        }
+                      }}
                       onMouseMove={(e) => { if (isHighlighted) moveTooltip(e) }}
                       onMouseLeave={hideTooltip}
                       style={{
                         default: { outline: 'none' },
-                        hover: { fill: isHighlighted ? '#0B493A' : '#c5d9d4', outline: 'none', cursor: isHighlighted ? 'pointer' : 'default' },
+                        hover: { outline: 'none' },
                         pressed: { outline: 'none' },
                       }}
                     />
@@ -112,10 +122,7 @@ export default function WorldMap() {
                   fill="#0B493A"
                   stroke="#ffffff"
                   strokeWidth={2}
-                  style={{ cursor: 'pointer' }}
-                  onMouseEnter={(e) => showTooltip(marker.name, e)}
-                  onMouseMove={(e) => moveTooltip(e)}
-                  onMouseLeave={hideTooltip}
+                  style={{ pointerEvents: 'none' }}
                 />
               </Marker>
             ))}
