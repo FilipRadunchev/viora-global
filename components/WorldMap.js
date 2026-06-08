@@ -55,7 +55,7 @@ export default function WorldMap() {
             </Geographies>
             {markers.map((marker) => (
               <Marker key={marker.name} coordinates={marker.coordinates}>
-                <circle r={5} fill="#0B493A" stroke="#ffffff" strokeWidth={2} />
+                <circle r={5} fill="#0B493A" stroke="#ffffff" strokeWidth={2} style={{ pointerEvents: 'none' }} />
                 <title>{marker.name}</title>
               </Marker>
             ))}
