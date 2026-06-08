@@ -24,26 +24,27 @@ const countryNames = {
 }
 
 const markers = [
-  { name: 'United Kingdom', coordinates: [-2.5, 54] },
-  { name: 'Malta', coordinates: [14.4, 35.9] },
-  { name: 'Cyprus', coordinates: [33.4, 35.1] },
-  { name: 'UAE', coordinates: [54, 24] },
-  { name: 'Nigeria', coordinates: [8, 9] },
-  { name: 'Kenya', coordinates: [37.9, 0.02] },
-  { name: 'South Africa', coordinates: [25, -29] },
-  { name: 'Canada', coordinates: [-96, 60] },
-  { name: 'Curacao', coordinates: [-69, 12.2] },
-  { name: 'Isle of Man', coordinates: [-4.5, 54.2] },
-  { name: 'Gibraltar', coordinates: [-5.35, 36.14] },
+  { name: 'United Kingdom', geoId: '826', coordinates: [-2.5, 54] },
+  { name: 'Malta', geoId: '470', coordinates: [14.4, 35.9] },
+  { name: 'Cyprus', geoId: '196', coordinates: [33.4, 35.1] },
+  { name: 'UAE', geoId: '784', coordinates: [54, 24] },
+  { name: 'Nigeria', geoId: '566', coordinates: [8, 9] },
+  { name: 'Kenya', geoId: '404', coordinates: [37.9, 0.02] },
+  { name: 'South Africa', geoId: '710', coordinates: [25, -29] },
+  { name: 'Canada', geoId: '124', coordinates: [-96, 60] },
+  { name: 'Curacao', geoId: '531', coordinates: [-69, 12.2] },
+  { name: 'Isle of Man', geoId: '833', coordinates: [-4.5, 54.2] },
+  { name: 'Gibraltar', geoId: '292', coordinates: [-5.35, 36.14] },
 ]
 
 export default function WorldMap() {
   const [tooltip, setTooltip] = useState({ visible: false, name: '', x: 0, y: 0 })
   const [hoveredCountry, setHoveredCountry] = useState(null)
 
-  const showTooltip = (name, e) => {
+  const showTooltip = (name, geoId, e) => {
     const rect = e.target.closest('svg').parentElement.getBoundingClientRect()
     setTooltip({ visible: true, name, x: e.clientX - rect.left, y: e.clientY - rect.top })
+    setHoveredCountry(geoId)
   }
 
   const moveTooltip = (e) => {
@@ -97,12 +98,7 @@ export default function WorldMap() {
                       fill={isHighlighted && isHovered ? '#0B493A' : '#c5d9d4'}
                       stroke="#ffffff"
                       strokeWidth={0.5}
-                      onMouseEnter={(e) => {
-                        if (isHighlighted) {
-                          setHoveredCountry(geo.id)
-                          showTooltip(countryNames[geo.id], e)
-                        }
-                      }}
+                      onMouseEnter={(e) => { if (isHighlighted) showTooltip(countryNames[geo.id], geo.id, e) }}
                       onMouseMove={(e) => { if (isHighlighted) moveTooltip(e) }}
                       onMouseLeave={hideTooltip}
                       style={{
@@ -117,12 +113,14 @@ export default function WorldMap() {
             </Geographies>
             {markers.map((marker) => (
               <Marker key={marker.name} coordinates={marker.coordinates}>
+                <circle r={5} fill="#0B493A" stroke="#ffffff" strokeWidth={2} style={{ pointerEvents: 'none' }} />
                 <circle
-                  r={5}
-                  fill="#0B493A"
-                  stroke="#ffffff"
-                  strokeWidth={2}
-                  style={{ pointerEvents: 'none' }}
+                  r={12}
+                  fill="transparent"
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={(e) => showTooltip(marker.name, marker.geoId, e)}
+                  onMouseMove={(e) => moveTooltip(e)}
+                  onMouseLeave={hideTooltip}
                 />
               </Marker>
             ))}
